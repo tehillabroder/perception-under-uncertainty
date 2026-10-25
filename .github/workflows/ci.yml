@@ -1,0 +1,87 @@
+# check the installed package and the linux container before trusting a change.
+name: checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: '0.12.19'
+          python-version: '3.12.13'
+          enable-cache: true
+      - name: install the locked environment
+        run: uv sync --locked
+      - name: check formatting and lint
+        run: |
+          uv run --locked ruff format --check .
+          uv run --locked ruff check .
+      - name: build and install the wheel
+        run: |
+          uv build --no-build-isolation
+          uv pip install --no-deps --reinstall dist/*.whl
+      # use the installed wheel directly so source imports cannot hide packaging errors.
+      - name: test the installed package
+        run: .venv/bin/python -m pytest
+      - name: check the installed command
+        run: .venv/bin/ppu run --config configs/smoke.json
+
+  container:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: build the linux image with source metadata
+        run: |
+          docker buildx build --load --platform linux/amd64 \
+            --build-arg SOURCE_REVISION="$GITHUB_SHA" \
+            --build-arg SOURCE_DIRTY=false \
+            --tag perception-under-uncertainty:ci .
+      - name: run with a writable host output directory
+        run: |
+          mkdir -p artifacts/container
+          image_id=$(docker image inspect --format '{{.Id}}' perception-under-uncertainty:ci)
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --env PPU_IMAGE_ID="$image_id" \
+            --mount "type=bind,source=$PWD/artifacts/container,target=/results" \
+            perception-under-uncertainty:ci
+      - name: check the container record
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          manifests = list(Path("artifacts/container").glob("*/run_manifest.json"))
+          assert len(manifests) == 1
+          manifest = json.loads(manifests[0].read_text())
+          assert manifest["smoke_check"] == "passed"
+          assert manifest["model_inference_performed"] is False
+          assert manifest["dataset_evaluated"] is False
+          assert manifest["source"]["revision"] == os.environ["GITHUB_SHA"]
+          assert manifest["source"]["dirty"] is False
+          assert manifest["environment"]["system"] == "Linux"
+          assert manifest["environment"]["image_id"].startswith("sha256:")
+          assert manifest["effective_config"]["output_dir"] == "/results"
+          assert manifest["lockfile_sha256"] == hashlib.sha256(Path("uv.lock").read_bytes()).hexdigest()
+          PY

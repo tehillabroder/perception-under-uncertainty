@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "experiment": "smoke",
+  "seed": 42,
+  "output_dir": "artifacts/smoke"
+}

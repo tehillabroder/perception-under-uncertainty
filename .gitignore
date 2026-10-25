@@ -1,0 +1,25 @@
+# local environments, caches and package builds stay out of the source history.
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# downloaded data and run outputs are reproducible inputs and outputs, not source.
+artifacts/
+data/*
+!data/README.md
+
+# record where weights came from and their hashes instead of committing them.
+*.pt
+*.pth
+*.onnx
+*.ckpt
+*.safetensors

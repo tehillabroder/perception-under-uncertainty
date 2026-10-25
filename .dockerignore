@@ -1,0 +1,22 @@
+# send only the files needed to build the scaffold, datasets are mounted at runtime.
+.git
+.github
+.venv
+**/__pycache__
+.pytest_cache
+.ruff_cache
+**/*.py[cod]
+**/*.egg-info
+tests
+artifacts
+data
+.DS_Store
+.env
+.env.*
+build
+dist
+**/*.pt
+**/*.pth
+**/*.onnx
+**/*.ckpt
+**/*.safetensors
