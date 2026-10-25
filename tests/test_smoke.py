@@ -107,6 +107,7 @@ def test_missing_git_is_recorded_as_unknown(
         "origin": "unavailable",
     }
 
+
 # check build-supplied details so container runs can be traced to their source and environment.
 def test_build_metadata_and_lockfile_are_recorded(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
@@ -126,6 +127,7 @@ def test_build_metadata_and_lockfile_are_recorded(
     }
     assert manifest["lockfile_sha256"] == sha256(lockfile.read_bytes()).hexdigest()
     assert manifest["environment"]["image_id"] == "sha256:" + "b" * 64
+
 
 # record the commit and any uncommitted changes so local edits are visible in the run record.
 @pytest.mark.parametrize("git_status", ["", " M src/example.py\n?? new-config.json\n"])
@@ -159,6 +161,7 @@ def test_checkout_revision_and_dirty_state_are_recorded(
         "origin": "git",
     }
 
+
 # check the success message includes the saved file's path so the user can find the record.
 def test_cli_reports_the_manifest(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     status = main(["run", "--config", str(REFERENCE_CONFIG), "--output-dir", str(tmp_path)])
@@ -170,6 +173,7 @@ def test_cli_reports_the_manifest(tmp_path: Path, capsys: pytest.CaptureFixture[
     manifest_paths = list(tmp_path.glob("*/run_manifest.json"))
     assert len(manifest_paths) == 1
     assert str(manifest_paths[0]) in output.out
+
 
 # check bad input produces an error and exit code 2 so users and scripts can detect failure.
 @pytest.mark.parametrize("contents", [None, "{", "{}"])
@@ -186,6 +190,7 @@ def test_cli_reports_bad_input_without_claiming_success(
     assert output.out == ""
     assert "configuration or run error" in output.err
 
+
 # use a file where a directory is needed to check that output errors reach the user.
 def test_cli_reports_an_unwritable_output_location(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
@@ -196,6 +201,7 @@ def test_cli_reports_an_unwritable_output_location(
         main(["run", "--config", str(REFERENCE_CONFIG), "--output-dir", str(output_file)])
     assert failure.value.code == 2
     assert "configuration or run error" in capsys.readouterr().err
+
 
 # launch from another directory to catch imports that accidentally depend on the project folder.
 def test_installed_module_runs_outside_the_checkout(tmp_path: Path) -> None:

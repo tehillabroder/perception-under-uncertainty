@@ -22,7 +22,8 @@ class RunConfig(BaseModel):
 
     schema_version: Literal[1]
     experiment: Literal["smoke"]
-    seed: int = Field(strict=True, ge=0, le=2**32 - 1)  # must be an int within range of unsigned 32-bit
+    # must be an int within range of unsigned 32-bit
+    seed: int = Field(strict=True, ge=0, le=2**32 - 1)
     output_dir: Path
 
     @field_validator("schema_version", mode="before")
@@ -55,4 +56,5 @@ def load_config(path: Path) -> tuple[RunConfig, str]:
     """
     config_bytes = path.read_bytes()
     config = RunConfig.model_validate_json(config_bytes)
-    return config, sha256(config_bytes).hexdigest()  # the fingerprint of the exact config file contents
+    # the fingerprint of the exact config file contents
+    return config, sha256(config_bytes).hexdigest()
