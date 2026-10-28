@@ -2,10 +2,7 @@ from huggingface_hub import hf_hub_download
 from ultralytics import YOLO
 
 # download the tomsmail pretrained drone detector
-weights = hf_hub_download(
-    repo_id="TomSmail/drone-yolo-v1",
-    filename="best.pt"
-)
+weights = hf_hub_download(repo_id="TomSmail/drone-yolo-v1", filename="best.pt")
 
 model = YOLO(weights)
 
@@ -17,7 +14,7 @@ results = model.predict(
     device="cpu",
     save=True,
     project="runs",
-    name="tomsmail_1280"
+    name="tomsmail_1280",
 )
 
 print("Finished!")
