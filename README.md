@@ -4,12 +4,15 @@ I'm building a series of small computer vision experiments to understand how
 perception changes when images lose detail, cameras move, and sensors disagree.
 i'll share the code, results and things that go wrong as i work through them.
 
-The first experiment will compare resizing a whole image with running detection
-on smaller patches. i'm interested in what happens to tiny objects, false alarms
-and processing time.
+## Post 1: Small objects and observability
 
-**Where things stand:** The configuration, run records, tests and container setup
-are working. the perception experiments are the next step.
+I'm comparing whole-image detection at 640 and 1280 with SAHI sliced inference on 30 selected images from DUT Anti-UAV.
+
+So far, increasing resolution has recovered some missed drones, but also introduced more false positives. SAHI has been particularly noisy around trees, buildings and other background details. Some difficult drones are still missed regardless of resolution.
+
+These are early manual observations, not final results. I'm now in the middle of checking predictions against the XML annotations to measure recall, false positives and localisation accuracy properly.
+
+The [baseline notes](docs/post1_baseline_notes.md), [SAHI methodology](docs/post1_sahi_methodology.md) and [observations](docs/post1_sahi_observations.md) document what i've tested and found so far. The inference code is in [`test_tomsmail.py`](scripts/test_tomsmail.py) and [`test_sahi.py`](scripts/test_sahi.py).
 
 ## The research
 
@@ -98,11 +101,14 @@ is recorded as `null`.
 
 ## Finding your way around
 
-- [`config.py`](src/perception_under_uncertainty/config.py) reads and validates the settings.
-- [`runner.py`](src/perception_under_uncertainty/runner.py) creates the run record.
-- [`cli.py`](src/perception_under_uncertainty/cli.py) handles the command line.
-- [`experiments/`](src/perception_under_uncertainty/experiments/) is where the research code will go.
-- [`tests/`](tests/) checks configuration, run records and command behavior.
+- [`docs/`](docs/) contains the experiment plan, research notes, methodology and observations.
+- [`scripts/test_tomsmail.py`](scripts/test_tomsmail.py) runs the whole-image YOLO baselines at 640 and 1280.
+- [`scripts/test_sahi.py`](scripts/test_sahi.py) runs sliced inference with SAHI.
+- [`scripts/evaluate_post1.py`](scripts/evaluate_post1.py) reads the DUT annotations and evaluates bounding-box matching.
+- [`tests/`](tests/) checks configuration, run records, IoU calculations and detection matching.
+- [`configs/smoke.json`](configs/smoke.json) contains the setup-check configuration.
+- [`src/perception_under_uncertainty/`](src/perception_under_uncertainty/) handles configuration, the CLI and run records.
+- `runs/` stores generated detection results locally and is excluded from git.
 
 ## Development checks
 
