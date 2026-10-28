@@ -16,6 +16,7 @@ dist/
 artifacts/
 data/*
 !data/README.md
+runs/*
 
 # record where weights came from and their hashes instead of committing them.
 *.pt
