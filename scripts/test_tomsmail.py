@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from huggingface_hub import hf_hub_download
 from ultralytics import YOLO
 
@@ -13,8 +15,8 @@ results = model.predict(
     conf=0.25,
     device="cpu",
     save=True,
-    project="runs",
-    name="tomsmail_1280",
+    project=str(Path("results/post1/figures/predictions").resolve()),
+    name="yolo_1280",
 )
 
 print("Finished!")

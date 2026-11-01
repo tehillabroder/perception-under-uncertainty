@@ -21,14 +21,7 @@ images = sorted(Path("data/post1_sample").glob("*.jpg"))
 for image in images:
     start = perf_counter()
 
-    """
-    SAHI supports two approaches:
-    - sliced-only inference, which uses predictions from patches
-    - sliced plus whole-image inference, which combines predictions from patches and 
-        the original whole image
-    The default is True, where SAHI performs whole-image prediction
-    For now I chose False, because I initially want to isolate the effect of slicing
-    """
+    # disable whole-image prediction to isolate the effect of slicing.
     result = get_sliced_prediction(
         str(image),
         model,
@@ -42,6 +35,8 @@ for image in images:
 
     elapsed = perf_counter() - start
 
-    result.export_visuals(export_dir="runs/sahi_640", file_name=image.stem)
+    result.export_visuals(
+        export_dir="results/post1/figures/predictions/sahi_640", file_name=image.stem
+    )
 
     print(f"{image.name}: {len(result.object_prediction_list)} predictions, {elapsed:.2f} seconds")

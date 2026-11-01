@@ -18,6 +18,9 @@ data/*
 !data/README.md
 runs/*
 
+# publish selected figures, keeping bulk image renders local.
+results/post1/figures/predictions/
+
 # record where weights came from and their hashes instead of committing them.
 *.pt
 *.pth

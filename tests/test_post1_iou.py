@@ -1,6 +1,6 @@
 import pytest
 
-from scripts.evaluate_post1 import box_iou
+from perception_under_uncertainty.evaluation import box_iou
 
 
 def test_identical_boxes():

@@ -10,7 +10,7 @@ I'm comparing whole-image detection at 640 and 1280 with SAHI sliced inference o
 
 So far, increasing resolution has recovered some missed drones, but also introduced more false positives. SAHI has been particularly noisy around trees, buildings and other background details. Some difficult drones are still missed regardless of resolution.
 
-These are early manual observations, not final results. I'm now in the middle of checking predictions against the XML annotations to measure recall, false positives and localisation accuracy properly.
+I've now checked predictions against the XML annotations and started separating missed targets, localisation errors and background false alarms. The [evaluation notes](docs/post1_xml_eval.md) explain the first results, and the [saved results](results/post1/README.md) let you repeat the analysis without running inference.
 
 The [baseline notes](docs/post1_baseline_notes.md), [SAHI methodology](docs/post1_sahi_methodology.md) and [observations](docs/post1_sahi_observations.md) document what i've tested and found so far. The inference code is in [`test_tomsmail.py`](scripts/test_tomsmail.py) and [`test_sahi.py`](scripts/test_sahi.py).
 
@@ -104,11 +104,15 @@ is recorded as `null`.
 - [`docs/`](docs/) contains the experiment plan, research notes, methodology and observations.
 - [`scripts/test_tomsmail.py`](scripts/test_tomsmail.py) runs the whole-image YOLO baselines at 640 and 1280.
 - [`scripts/test_sahi.py`](scripts/test_sahi.py) runs sliced inference with SAHI.
-- [`scripts/evaluate_post1.py`](scripts/evaluate_post1.py) reads the DUT annotations and evaluates bounding-box matching.
+- [`scripts/evaluate_post1.py`](scripts/evaluate_post1.py) runs inference, prints the baseline summary and saves predictions.
+- [`scripts/analyse_post1.py`](scripts/analyse_post1.py) investigates sizes, missed targets and errors from the saved cache.
+- [`scripts/sweep_post1_confidence.py`](scripts/sweep_post1_confidence.py) measures confidence filtering and writes a csv.
+- [`results/post1/`](results/post1/) contains the published cache, measurements and selected figures, with commands to reproduce the analysis.
 - [`tests/`](tests/) checks configuration, run records, IoU calculations and detection matching.
 - [`configs/smoke.json`](configs/smoke.json) contains the setup-check configuration.
 - [`src/perception_under_uncertainty/`](src/perception_under_uncertainty/) handles configuration, the CLI and run records.
-- `runs/` stores generated detection results locally and is excluded from git.
+- `runs/` stores local prediction caches and tables and is excluded from git.
+- `results/post1/figures/predictions/` keeps bulk detection visuals locally, alongside the published figures.
 
 ## Development checks
 

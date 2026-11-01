@@ -92,3 +92,11 @@ I'll also investigate how changing the confidence threshold affects recall and f
 Finally, I want to measure inference time consistently and repeat the evaluation on a larger, less selectively chosen set of images.
 
 The broader question I'm now interested in is not just whether a detector sees a drone, but whether its output is accurate and reliable enough to use.
+
+## Saved analysis
+
+The [results folder](../results/post1/README.md) contains the prediction cache,
+confidence-sweep measurements and commands to repeat the analysis.
+The [baseline comparison](../results/post1/figures/post1_method_comparison.png) and
+[error groups](../results/post1/figures/post1_error_breakdown.png)
+show the measurements from this sample.
