@@ -55,12 +55,7 @@ These are **visual judgements**, not one-to-one matches against the dataset XML 
 - A larger input or local crop does not by itself guarantee successful detection. Things like appearance, contrast, occlusion and learned features could be affecting the results.
 - These 30 images were chosen for exploration, **not randomly sampled**. They're not an unbiased benchmark.
 
-## Next evaluation
-
-Check up the original DUT Pascal VOC XML for each image. Compare every predicted bounding box in **original image coordinates** with the annotated UAV boxes. Use greedy, descending-confidence one-to-one matching at IoU ≥ 0.5, with the two model classes mapped to a single UAV target category. Report true positives, false negatives, background false positives, duplicates, recall by original object size and latency. Re-run inference to save raw prediction coordinates, because annotated JPGs alone cannot be evaluated reliably.
-
-I will run the model again on the raw images so i can save the exact numerical box coordinates instead of just looking at drawn JPGs.
-For every image, i'll read the real drone boxes from the XML annotation files, treating both model labels as just "drone". I plan to sort the predicted boxes from highest confidence to lowest, and match each one to the best overlapping real box (at least 50% overlap). I'll report true positives, false negatives, background false positives, duplicates, and recall by original object size and latency. 
+I've now completed the first XML-based evaluation of these 30 images. The results helped explain why my manual observations and measured recall didn't always agree. Some drones I considered correctly detected had bounding boxes that failed the IoU threshold. I've documented the comparison, localisation errors and remaining questions in `post1_xml_eval.md`.
 
 ## References
 
