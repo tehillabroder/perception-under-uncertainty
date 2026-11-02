@@ -111,7 +111,7 @@ is recorded as `null`.
 - [`tests/`](tests/) checks configuration, run records, IoU calculations and detection matching.
 - [`configs/smoke.json`](configs/smoke.json) contains the setup-check configuration.
 - [`src/perception_under_uncertainty/`](src/perception_under_uncertainty/) handles configuration, the CLI and run records.
-- `runs/` stores local prediction caches and tables and is excluded from git.
+- `runs/` stores local prediction caches and tables. Only the frozen four-method cache and sweep named in the [results notes](results/post1/README.md) are included in git.
 - `results/post1/figures/predictions/` keeps bulk detection visuals locally, alongside the published figures.
 
 ## Development checks

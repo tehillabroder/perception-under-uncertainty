@@ -1,3 +1,7 @@
+"""
+Run the pretrained drone detector at 640 and 1280 on the sample images and save detection visuals
+"""
+
 from pathlib import Path
 
 from huggingface_hub import hf_hub_download

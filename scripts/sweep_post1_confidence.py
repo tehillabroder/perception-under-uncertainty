@@ -1,4 +1,6 @@
-"""measure how confidence filtering affects recall and false positives."""
+"""
+Measure how confidence filtering affects recall and false positives
+"""
 
 import argparse
 import csv

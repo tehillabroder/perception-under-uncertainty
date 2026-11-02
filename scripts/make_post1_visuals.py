@@ -1,4 +1,6 @@
-"""plot the post1 baseline comparison from saved predictions."""
+"""
+Plot the post1 baseline comparison from saved predictions
+"""
 
 import argparse
 import json

@@ -1,4 +1,6 @@
-"""plot post1 false-positive groups from saved predictions."""
+"""
+Plot post1 false-positive groups from saved predictions
+"""
 
 import argparse
 import json

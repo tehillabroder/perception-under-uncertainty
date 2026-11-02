@@ -1,3 +1,7 @@
+"""
+Run sliced-only SAHI on the 30-image sample, save detection visuals and print timings
+"""
+
 from pathlib import Path
 from time import perf_counter
 

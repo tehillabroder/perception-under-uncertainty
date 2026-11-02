@@ -1,4 +1,6 @@
-"""inspect missed targets, object size and errors using saved predictions."""
+"""
+Inspect missed targets, object size and errors using saved predictions
+"""
 
 import argparse
 import json
@@ -53,17 +55,63 @@ def analyse(data):
         print(f"Recall={recall:.2%}, Precision={precision:.2%}")
         print(f"FP/image={fp / len(annotations):.2f}")
 
-    print("\n=== GAINED / LOST vs YOLO 640 ===")
-    baseline = matches["YOLO 640"]
-    for label in ("YOLO 1280", "SAHI 640"):
-        print(f"\n{label}")
+    comparisons = [("YOLO 1280", "YOLO 640"), ("SAHI 640", "YOLO 640")]
+    full_image_label = "SAHI 640 + full image"
+    if full_image_label in matches:
+        comparisons.append((full_image_label, "SAHI 640"))
+    for label, baseline_label in comparisons:
+        print(f"\n=== GAINED / LOST: {label} vs {baseline_label} ===")
+        baseline = matches[baseline_label]
+        total_gained = total_lost = total_fp_delta = 0
+        if label == full_image_label:
+            print("GT indices are zero-based; UAV# is index + 1. FP delta is full minus sliced.")
         for name in annotations:
             gained = matches[label][name] - baseline[name]
             lost = baseline[name] - matches[label][name]
+            total_gained += len(gained)
+            total_lost += len(lost)
             for index in sorted(gained):
                 print(f"GAIN {name} UAV#{index + 1}: {size_at_640(name, index):.1f}px")
             for index in sorted(lost):
                 print(f"LOST {name} UAV#{index + 1}: {size_at_640(name, index):.1f}px")
+
+            if label == full_image_label:
+                sliced_predictions = prediction_cache[baseline_label][name]
+                full_predictions = prediction_cache[label][name]
+                sliced_fp = len(sliced_predictions) - len(baseline[name])
+                full_fp = len(full_predictions) - len(matches[label][name])
+                fp_delta = full_fp - sliced_fp
+                total_fp_delta += fp_delta
+                boxes_changed = sorted(p["box"] for p in sliced_predictions) != sorted(
+                    p["box"] for p in full_predictions
+                )
+                print(
+                    f"{name}: gained GT={sorted(gained)}, lost GT={sorted(lost)}, "
+                    f"FP={sliced_fp}->{full_fp} ({fp_delta:+d}), boxes changed={boxes_changed}"
+                )
+                for index, annotation in enumerate(annotations[name]):
+                    size = size_at_640(name, index)
+                    if size < 64 and name not in ("00605.jpg", "00967.jpg"):
+                        continue
+                    overlaps = [
+                        max(
+                            (box_iou(p["box"], annotation["box"]) for p in predictions),
+                            default=0.0,
+                        )
+                        for predictions in (sliced_predictions, full_predictions)
+                    ]
+                    print(
+                        f"  GT[{index}] / UAV#{index + 1}: {size:.1f}px, "
+                        f"matched={index in baseline[name]}->{index in matches[label][name]}, "
+                        f"best IoU={overlaps[0]:.4f}->{overlaps[1]:.4f}"
+                    )
+
+        if label == full_image_label:
+            tp_delta = sum(len(indices) for indices in matches[label].values()) - sum(
+                len(indices) for indices in baseline.values()
+            )
+            assert total_gained - total_lost == tp_delta
+            print(f"TOTAL: gained={total_gained}, lost={total_lost}, FP delta={total_fp_delta:+d}")
 
     print("\n=== RECALL BY UAV SIZE ===")
     bins = (("<16", 0, 16), ("16-31", 16, 32), ("32-63", 32, 64), ("64+", 64, float("inf")))

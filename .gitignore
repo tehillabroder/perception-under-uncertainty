@@ -17,6 +17,9 @@ artifacts/
 data/*
 !data/README.md
 runs/*
+# frozen four-method evidence from the closed 30-image exploration.
+!runs/post1_predictions_with_full_image.json
+!runs/post1_confidence_sweep_full_image.csv
 
 # publish selected figures, keeping bulk image renders local.
 results/post1/figures/predictions/

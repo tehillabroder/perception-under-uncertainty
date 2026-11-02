@@ -1,4 +1,6 @@
-"""run the post1 baselines and save predictions for later analysis."""
+"""
+Run the post1 baselines and save predictions for later analysis
+"""
 
 import argparse
 import json
