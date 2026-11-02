@@ -1,45 +1,67 @@
-# Post 1: Next Experiment — An Independent DUT Sample
+# Post 1. A New DUT Evaluation Sample
 
-## Why I'm moving on
+## What I want to find out
 
-The [30-image exploration](post1_sahi_full_image.md) is closed. Full-image prediction added five net false positives without recovering a drone at confidence 0.25. At 0.70, it retained one additional correct match at the same false-positive count. Neither result establishes how either method will perform on new images.
+The [30-image exploration](post1_sahi_full_image.md) is closed. Adding full-image prediction to SAHI produced more false positives at confidence 0.25, but retained one more correct match at the same false-positive count at 0.70.
 
-The next question is whether those patterns hold on a larger sample chosen before looking at its predictions, and how much processing time each method needs.
+I now want to see whether these patterns hold on a larger sample. Do larger inputs and image slicing find more drones accurately, and how much extra processing time do they need?
 
-## Next chunk: select and freeze the sample
+## The sample is fixed
 
-**Status: planned; the independent sample has not been selected or evaluated.**
+I randomly selected **300 unique images containing 309 labelled drones** from the DUT test set. I used seed `20261102` so the selection can be repeated, and chose the images before running any predictions on them.
 
-The proposed starting point is 300 images from the official DUT detection test split, selected without replacement using seed `20261102`. I will confirm the available pool and freeze the selection before running the detector.
+Checking the 2,200 test images revealed **539 exact duplicate pairs**, including copies of five images from the original exploration. After removing duplicate copies and excluding the original 30 images, there were 1,631 unique images to choose from.
 
-1. Record the dataset release/source and inventory the test images and XML annotations. Check that files are readable and boxes are valid. Record exclusions and reasons; do not silently replace failed inputs during evaluation.
-2. Exclude all 30 filenames in `results/post1/predictions.json`, any other images already used to choose settings, and exact copies of those images under different names.
-3. Check the release's sequence/source information and duplicate relationships. Where related frames can be identified, keep exploratory and evaluation groups separate. Different filenames alone do not establish independence; record what grouping information is available and any remaining uncertainty.
-4. Select from the sorted eligible pool using the fixed seed, without choosing images by appearance or detector output. If group-based selection is needed, fix that rule before drawing the sample. If fewer than 300 eligible images remain, record the shortfall and settle the sample size before inference.
-5. Save a versioned manifest in `configs/dut_independent_eval.json`: source, selection rule, seed, eligible-pool checksum, exclusions, selected filenames, and image/XML checksums. Commit it before the evaluation run.
-6. Test that the selection repeats exactly, has no duplicate IDs or excluded images, and has a valid annotation file for every image. Keep valid images with no drones if the source split contains them.
+Every image had a matching annotation file. Nine files had boxes extending one pixel beyond an image edge. I kept those annotations unchanged and recorded the issue.
 
-This is independence from our exploratory choices. I also need to check the pretrained model's documented training data before describing these images as unseen by the model itself.
+The [image list](../results/post1/evaluation_sample_300.txt) and [full selection record](../configs/dut_independent_eval.json) are saved for the commit. The 300-image evaluation has not been run. A small software check has passed using two original images instead.
 
-## Keep the comparison fixed
+## What this sample can and cannot tell us
 
-- Use the same model weights for all four methods: YOLO 640, YOLO 1280, SAHI 640, and SAHI 640 + full image. Record the resolved model revision and weight checksum.
-- Keep the existing slice size, overlap and box-merging settings. The two SAHI settings differ only in `perform_standard_pred`.
-- Save predictions at confidence 0.25, then report the already-chosen thresholds: 0.25, 0.35, 0.45, 0.55, 0.70 and 0.80. This is filtering saved, merged boxes, not rerunning merging at each threshold.
-- Keep the primary matching threshold at IoU 0.5. Reuse `evaluation.py`: predictions are considered in confidence order; each chooses its best-overlapping annotation; a previously claimed annotation counts as a duplicate. Matching checks box overlap, not drone subtype labels.
-- Report correct matches, false positives, missed drones, recall, precision and false positives per image, plus the existing size groups and matched-target gains/losses. Compare recall at similar false-positive counts, not only at equal confidence thresholds.
-- Report all predefined thresholds. Do not choose new settings from these evaluation results; further tuning would need separate development data and another untouched evaluation sample.
+All images in this test set contain drones. The false-positive counts will tell us about extra or incorrect detections in those images, not how often the model raises an alarm when no drone is present.
 
-## Measure processing time consistently
+Exact copies are excluded, but similar scenes may remain because the dataset does not identify which images belong to the same scene. I also cannot confirm whether any images appeared in the model's training data. This is a fresh sample for our experiment, not a guarantee of completely unseen scenes.
 
-Use one recorded device and software environment for every method, with batch size one. Load the model once and perform five untimed warm-up calls per method on images outside the evaluation sample.
+## Fixed comparison
 
-For the main timing, decode each image before starting the clock, then measure from the loaded image to final boxes. Include resizing, slicing, all model calls and box merging. Exclude model download/loading, image decoding, XML matching, plotting and saving files. Synchronise the device around timing if using an accelerator.
+I will compare **YOLO 640, YOLO 1280, SAHI 640 and SAHI 640 + full image**, using the same model weights and settings as before.
 
-Run three timed passes per method, retaining per-image timings and method order. Save predictions from the first pass. Report median and 95th-percentile milliseconds per image, with the timing boundary and hardware alongside them. The old manual timings are not a comparable latency benchmark.
+The main comparison stays at confidence 0.25 and a box-overlap score of at least 0.5 (IoU). Each labelled drone can count as a correct match only once. I will report correct matches, missed drones, false positives, recall and precision, including how results differ by drone size.
 
-## Before the fuller run
+I will also filter the saved predictions at confidence levels 0.35, 0.45, 0.55, 0.70 and 0.80. This will show whether one method keeps more correct matches at a similar false-positive count. It does not rerun the model or combine the boxes again.
 
-The current inference scripts are specific to the 30-image exploration. The next implementation needs to consume the frozen manifest, record the agreed timings and complete run settings, and write to a separate experiment directory. A small smoke test should check sample coverage, all four methods, timing records and unchanged source files before the full run.
+The settings are fixed before the evaluation. I will report all these thresholds rather than use the new sample to keep adjusting SAHI.
 
-The next deliverable is the checked, committed sample manifest and selection procedure. The larger inference run follows that step.
+## Processing time
+
+All four methods will run on the same Intel Core i5-1038NG7 CPU, one image at a time. After five untimed warm-up calls per method, each image will be processed three times. The methods use the same image order within each pass.
+
+Timing starts once the image is loaded and ends when the final boxes are ready. It includes image preparation, slicing, prediction and box merging, but excludes loading the model, reading the image from disk and saving results.
+
+For each image, I will take the middle of its three timings. Across those 300 values, I will report the **median**, or typical time, and the **90th percentile**, the time at or below which 90% of those values fall. These measurements describe this CPU setup, not performance on other hardware.
+
+## Commands
+
+Run these from the repository root after `uv sync --locked`.
+
+Check all 300 selected inputs without running a detector.
+
+```bash
+uv run --locked python -m scripts.evaluate_post1_sample --validate-only
+```
+
+After committing the selection and code, run the full comparison.
+
+```bash
+uv run --locked python -m scripts.evaluate_post1_sample \
+  --output-dir runs/dut_300_evaluation
+```
+
+Use a new output directory. It will contain the predictions, individual timings, main results and confidence comparisons, along with a record of the run settings.
+
+Analyse the resulting predictions with the existing script.
+
+```bash
+uv run --locked python -m scripts.analyse_post1 \
+  --cache runs/dut_300_evaluation/predictions.json
+```

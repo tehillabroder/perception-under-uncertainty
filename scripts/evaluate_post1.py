@@ -57,9 +57,9 @@ def read_annotations(xml_path):
 
 
 def predict_yolo(model, image_path, image_size):
-    """keep boxes in original-image coordinates, with scores and labels."""
+    """Accept a path or loaded RGB PIL image and return original-coordinate boxes."""
     result = model.predict(
-        source=str(image_path),
+        source=str(image_path) if isinstance(image_path, (str, Path)) else image_path,
         imgsz=image_size,
         conf=CONF_THRESHOLD,
         device="cpu",
@@ -80,8 +80,12 @@ def predict_yolo(model, image_path, image_size):
     return predictions
 
 
-def predict_sahi(model, image_path):
-    result = get_sliced_prediction(str(image_path), model, **SAHI_SETTINGS, verbose=0)
+def predict_sahi(model, image_path, *, settings=None):
+    """Accept a path or loaded RGB PIL image, keeping sliced-only defaults intact."""
+    source = str(image_path) if isinstance(image_path, (str, Path)) else image_path
+    result = get_sliced_prediction(
+        source, model, **(SAHI_SETTINGS if settings is None else settings), verbose=0
+    )
     return [
         {
             "box": pred.bbox.to_xyxy(),
