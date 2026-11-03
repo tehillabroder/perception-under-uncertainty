@@ -1,4 +1,4 @@
-# Post 1: Adding Full-Image Prediction to SAHI
+# Post 1: Adding full-image prediction to SAHI
 
 **Status: the 30-image exploratory phase is closed.** These findings helped shape the next test; they do not establish what will happen on unseen images.
 
@@ -81,7 +81,7 @@ These higher thresholds filter boxes that were already combined and saved at con
 
 I'm stopping adjustments to SAHI on these 30 deliberately selected images. They were useful for finding problems and forming questions, but repeated checks on the same examples are not an independent evaluation.
 
-The [next experiment](post1_independent_evaluation.md) will select a larger, predefined DUT sample and measure processing time as well as detection performance. I will keep both SAHI settings available for that comparison.
+The completed 300-image comparison follows this up with a larger, predefined DUT sample and measures processing time as well as detection performance. Both SAHI settings are included in its [write-up](post1_independent_evaluation.md).
 
 ## Saved run
 

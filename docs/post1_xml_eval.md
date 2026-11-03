@@ -1,4 +1,6 @@
-# Post 1: Evaluating YOLO and SAHI Against Ground Truth
+# Post 1: Evaluating YOLO and SAHI against ground truth
+
+This records the first automated evaluation of the 30 exploratory images. The follow-up questions below have since been investigated in the [full-image SAHI comparison](post1_sahi_full_image.md) and the [300-image evaluation](post1_independent_evaluation.md).
 
 ## What I've done
 
@@ -34,7 +36,7 @@ When I inspected `00605`, I could clearly see SAHI had detected all three drones
 
 But the evaluation counted only two correct detections.
 
-The third drone had an IoU of 0.486, just below my 0.5 threshold. The model had recognised the drone, but its bounding box was too large.
+The prediction around the third drone had an IoU of 0.486, just below my 0.5 threshold. Its bounding box was too large to count as a match.
 
 I checked other images and found similar problems.
 
@@ -83,7 +85,7 @@ So far, I've seen that finding an object and accurately localising it are differ
 
 Higher resolution can improve recall while creating more false alarms. Slicing can help identify objects, but it can also produce fragmented or oversized boxes.
 
-## What I want to investigate next
+## Follow-up questions at the time
 
 I want to separate real background false positives from duplicate boxes and localisation failures.
 

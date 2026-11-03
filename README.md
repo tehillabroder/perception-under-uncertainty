@@ -1,4 +1,4 @@
-# Perception Under Uncertainty: From Raw Pixels to Real World
+# Perception Under Uncertainty: From raw pixels to real world
 
 I'm building a series of small computer vision experiments to understand how
 perception changes when images lose detail, cameras move, and sensors disagree.
@@ -6,13 +6,15 @@ i'll share the code, results and things that go wrong as i work through them.
 
 ## Post 1: Small objects and observability
 
-I'm comparing whole-image detection at 640 and 1280 with SAHI sliced inference on 30 selected images from DUT Anti-UAV.
+The experiments are complete. [More pixels, more drones?](docs/post1_independent_evaluation.md) follows the question through 300 new images, with [saved measurements and visual cases](runs/dut_300_evaluation/README.md) behind the findings.
 
-So far, increasing resolution has recovered some missed drones, but also introduced more false positives. SAHI has been particularly noisy around trees, buildings and other background details. Some difficult drones are still missed regardless of resolution.
+I started with 30 selected DUT Anti-UAV images, comparing whole-image YOLO at 640 and 1280 with SAHI sliced inference, then added a sliced-plus-full-image comparison.
 
-I've now checked predictions against the XML annotations and started separating missed targets, localisation errors and background false alarms. The [evaluation notes](docs/post1_xml_eval.md) explain the first results, and the [saved results](results/post1/README.md) let you repeat the analysis without running inference.
+In the 300-image follow-up, higher-resolution YOLO recovered more drones, including at similar false-positive counts. Slicing helped some targets, but produced less accurate boxes and more extra detections, and took substantially longer.
 
-The [baseline notes](docs/post1_baseline_notes.md), [SAHI methodology](docs/post1_sahi_methodology.md) and [observations](docs/post1_sahi_observations.md) document what i've tested and found so far. The inference code is in [`test_tomsmail.py`](scripts/test_tomsmail.py) and [`test_sahi.py`](scripts/test_sahi.py).
+The [evaluation notes](docs/post1_xml_eval.md) and [published results](results/post1/README.md) record the earlier 30-image exploration, including the difference between visually plausible detections and boxes that matched the annotations.
+
+The [baseline notes](docs/post1_baseline_notes.md) and [manual observations](docs/post1_sahi_observations.md) preserve those early checks. The [methodology](docs/post1_sahi_methodology.md) also covers the completed 300-image evaluation, run by [`evaluate_post1_sample.py`](scripts/evaluate_post1_sample.py).
 
 ## The research
 
@@ -49,7 +51,7 @@ experiment name, seed and output directory. relative paths start at the working
 directory. use `--output-dir` to choose a different output root, or
 `uv run --locked ppu run --help` for help.
 
-## Running in docker
+## Running in Docker
 
 I'm developing on an intel mac and will run the model experiments in linux
 containers. with colima, start it using `colima start` and select
@@ -111,7 +113,7 @@ is recorded as `null`.
 - [`tests/`](tests/) checks configuration, run records, IoU calculations and detection matching.
 - [`configs/smoke.json`](configs/smoke.json) contains the setup-check configuration.
 - [`src/perception_under_uncertainty/`](src/perception_under_uncertainty/) handles configuration, the CLI and run records.
-- `runs/` stores local prediction caches and tables. Only the frozen four-method cache and sweep named in the [results notes](results/post1/README.md) are included in git.
+- `runs/` stores prediction caches and tables. The two frozen four-method exploration files listed in the [results guide](results/post1/README.md) and the selected [300-image evidence](runs/dut_300_evaluation/README.md) are explicitly included in Git; other run outputs stay local.
 - `results/post1/figures/predictions/` keeps bulk detection visuals locally, alongside the published figures.
 
 ## Development checks

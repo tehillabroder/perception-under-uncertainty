@@ -1,4 +1,6 @@
-# Post 1: Initial Detection Baseline
+# Post 1: Initial detection baseline
+
+Historical notes from the first 30-image visual review. The manual counts and proposed next steps below are preserved as recorded. Later checks are in the [XML evaluation](post1_xml_eval.md); the completed 300-image experiment is covered in the [write-up](post1_independent_evaluation.md).
 
 Model: TomSmail/drone-yolo-v1 (pretrained YOLOv8n)  
 Dataset: 30 selected images from DUT Anti-UAV test set  
@@ -59,7 +61,7 @@ Higher resolution appears to expose additional background features that the mode
 
 These findings are preliminary. We still need to inspect ground-truth bounding-box dimensions, verify prediction matching and measure inference latency.
 
-## Next
+## Next steps at the time
 
 1. Verify counts against XML annotations and confirm image ID `11076`.
 2. Record target sizes and confidence scores.

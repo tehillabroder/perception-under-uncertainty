@@ -1,19 +1,20 @@
-# experiment plan
+# Experiment plan
 
 i'm planning six experiments, shared through linkedin posts over
 a few weeks. each one will have a question, a baseline comparison and a plot or
 short silent clip showing what happened.
 
-## 1. small objects and observability
+## 1. Small objects and observability
 
-what happens to tiny objects when an image is resized?
+What happens to tiny objects when an image is resized?
 
-i'll compare a 640 by 640 whole-image detector with sahi sliced inference on a
-subset of dut anti-uav. i'll use the same model and weights, group objects by
-pixel size, and measure recall, false positives and processing time. the first
-milestone is this comparison running end to end with one diagnostic plot.
+The experiments are complete. I compared whole-image YOLO at 640 and 1280 with
+SAHI, with and without a full-image pass, using the same model weights. After
+exploring 30 DUT Anti-UAV images, I tested 300 new images and measured recall,
+false positives, object-size differences and CPU time. The
+[write-up](post1_independent_evaluation.md) brings together the findings and visual cases.
 
-## 2. temporal cues and clutter
+## 2. Temporal cues and clutter
 
 when does motion make an object easier to find?
 
@@ -21,7 +22,7 @@ i'll try three-frame differencing and dense optical flow on static-camera and
 moving-camera sequences. i'm interested in how parallax and jitter affect false
 alarms. i'll keep frame timing and any use of future frames explicit.
 
-## 3. monocular geometry
+## 3. Monocular geometry
 
 what can a single camera tell us about an object's direction and distance?
 
@@ -30,7 +31,7 @@ their sensitivity to detection jitter and camera motion. for size-based depth,
 i'll vary the box dimensions and show how the assumed object size affects the
 estimate. the plot will state the calibration, units and assumptions used.
 
-## 4. rgb and thermal fusion
+## 4. RGB and thermal fusion
 
 does combining two sensors help when one image becomes harder to interpret?
 
@@ -39,7 +40,7 @@ timing relationship, and compare each sensor with confidence-weighted late fusio
 controlled glare, noise, blur and alignment offsets will let me examine where the
 combined result improves or gets worse.
 
-## 5. detection calibration and abstention
+## 5. Detection calibration and abstention
 
 how well does a detector's confidence describe whether its predictions are useful?
 
@@ -49,7 +50,7 @@ localisation uncertainty will get its own evaluation. calibration will use held-
 sequences, followed by clean and degraded test data. i'll compare error against
 coverage as an abstention threshold changes.
 
-## 6. uncertainty and tracking
+## 6. Uncertainty and tracking
 
 how do detection errors affect the tracks built from them?
 
@@ -59,7 +60,7 @@ bearing-only extended kalman filter, defining each filter's state and observabil
 assumptions. tracking metrics will follow the identities and coverage available in
 the annotations.
 
-## keeping the comparisons useful
+## Keeping the comparisons useful
 
 each experiment will save its configuration, data selection, model version and
 environment alongside its results. i'll choose settings on development data,
@@ -69,7 +70,7 @@ and timing boundaries. repeated runs will help me check how stable the results a
 each post will link to the run behind its plot or clip, including failure cases
 and an explanation of what i think caused them.
 
-## reading alongside the code
+## Reading alongside the code
 
 - akyon et al., *slicing aided hyper inference and fine-tuning for small object detection*.
 - jiang et al., *anti-uav: a large-scale benchmark for vision-based uav tracking*.

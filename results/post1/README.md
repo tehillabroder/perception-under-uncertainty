@@ -1,4 +1,8 @@
-# Post1 results
+# Post 1 results
+
+The completed 300-image comparison is described in [More pixels, more drones?](../../docs/post1_independent_evaluation.md), with its [saved results and five visual cases](../../runs/dut_300_evaluation/README.md). The files below are the original 30-image evidence.
+
+## The original 30-image exploration
 
 I tried the same drone detector three ways, using yolo at 640, yolo at 1280,
 and sahi using smaller image patches. These are the results from 30 hand-picked
@@ -65,6 +69,6 @@ uv run --locked python -m scripts.make_post1_error_breakdown
 ```
 
 They save into `figures/`. The [evaluation notes](../../docs/post1_xml_eval.md)
-walk through the initial findings. The [next experiment plan](../../docs/post1_independent_evaluation.md) covers independent sample selection and comparable processing-time measurements.
+walk through the initial findings. The [300-image write-up](../../docs/post1_independent_evaluation.md) follows these questions through to the larger comparison and processing-time measurements.
 
 [back to the project](../../README.md)

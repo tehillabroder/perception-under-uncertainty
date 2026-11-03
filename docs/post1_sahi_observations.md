@@ -1,4 +1,6 @@
-# Post 1: SAHI Manual Observations
+# Post 1: SAHI manual observations
+
+This is the historical 30-image visual record. Its manual counts and timings are separate from the automated results in the [300-image write-up](post1_independent_evaluation.md).
 
 ## Experimental setup
 
@@ -55,7 +57,7 @@ These are **visual judgements**, not one-to-one matches against the dataset XML 
 - A larger input or local crop does not by itself guarantee successful detection. Things like appearance, contrast, occlusion and learned features could be affecting the results.
 - These 30 images were chosen for exploration, **not randomly sampled**. They're not an unbiased benchmark.
 
-I've now completed the first XML-based evaluation of these 30 images. The results helped explain why my manual observations and measured recall didn't always agree. Some drones I considered correctly detected had bounding boxes that failed the IoU threshold. I've documented the comparison, localisation errors and remaining questions in `post1_xml_eval.md`.
+I've now completed the first XML-based evaluation of these 30 images. The results helped explain why my manual observations and measured recall didn't always agree. Some drones I considered correctly detected had bounding boxes that failed the IoU threshold. I've documented the comparison, localisation errors and remaining questions in the [XML evaluation notes](post1_xml_eval.md).
 
 ## References
 
