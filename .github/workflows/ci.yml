@@ -55,11 +55,31 @@ jobs:
             --build-arg SOURCE_REVISION="$GITHUB_SHA" \
             --build-arg SOURCE_DIRTY=false \
             --tag perception-under-uncertainty:ci .
+      - name: check the vision libraries and CPU operations without downloads
+        run: |
+          docker run --rm --network none -i --entrypoint python \
+            perception-under-uncertainty:ci - <<'PY'
+          import cv2
+          import numpy as np
+          import torch
+          import torchvision
+          from sahi import AutoDetectionModel
+          from ultralytics import YOLO
+          from scripts.evaluate_post1_sample import collect_predictions
+
+          assert callable(YOLO) and callable(AutoDetectionModel.from_pretrained)
+          assert callable(collect_predictions)
+          assert (torch.ones((2, 2)) @ torch.ones((2, 2))).tolist() == [[2.0, 2.0], [2.0, 2.0]]
+          boxes = torch.tensor([[0., 0., 10., 10.], [1., 1., 9., 9.]])
+          assert torchvision.ops.nms(boxes, torch.tensor([0.9, 0.8]), 0.5).tolist() == [0]
+          assert cv2.resize(np.zeros((4, 4, 3), dtype=np.uint8), (2, 2)).shape == (2, 2, 3)
+          print("Vision imports, research runner import and CPU operations passed; no model inference.")
+          PY
       - name: run with a writable host output directory
         run: |
           mkdir -p artifacts/container
           image_id=$(docker image inspect --format '{{.Id}}' perception-under-uncertainty:ci)
-          docker run --rm \
+          docker run --rm --network none \
             --user "$(id -u):$(id -g)" \
             --env PPU_IMAGE_ID="$image_id" \
             --mount "type=bind,source=$PWD/artifacts/container,target=/results" \
@@ -84,4 +104,29 @@ jobs:
           assert manifest["environment"]["image_id"].startswith("sha256:")
           assert manifest["effective_config"]["output_dir"] == "/results"
           assert manifest["lockfile_sha256"] == hashlib.sha256(Path("uv.lock").read_bytes()).hexdigest()
+          PY
+      - name: reproduce the saved confidence table without inference
+        run: |
+          mkdir -p artifacts/container-analysis
+          docker run --rm --network none \
+            --user "$(id -u):$(id -g)" \
+            --entrypoint python \
+            --mount "type=bind,source=$PWD/runs/dut_300_evaluation,target=/inputs,readonly" \
+            --mount "type=bind,source=$PWD/artifacts/container-analysis,target=/results" \
+            perception-under-uncertainty:ci \
+            -m scripts.sweep_post1_confidence \
+            --cache /inputs/predictions.json --output /results/confidence_sweep.csv
+          python3 - <<'PY'
+          import csv
+          from pathlib import Path
+
+          def rows(path):
+              with Path(path).open(newline="", encoding="utf-8") as file:
+                  return list(csv.DictReader(file))
+
+          expected = rows("runs/dut_300_evaluation/confidence_sweep.csv")
+          actual = rows("artifacts/container-analysis/confidence_sweep.csv")
+          assert len(actual) == 24
+          assert actual == expected
+          print("All 24 confidence rows match the saved evaluation.")
           PY

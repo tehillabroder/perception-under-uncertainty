@@ -28,8 +28,13 @@ WORKDIR /app
 COPY --from=build /app/.venv /app/.venv
 COPY uv.lock ./
 COPY configs/ ./configs/
-# a host bind mount needs its own writable permissions.. see the readme run command.
-RUN useradd --create-home --uid 10001 --user-group --shell /usr/sbin/nologin ppu \
+COPY scripts/ ./scripts/
+# OpenCV's wheel needs these native libraries, even for CPU-only, non-GUI use.
+# A host bind mount needs writable permissions; see the README run command.
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y libgl1 libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --uid 10001 --user-group --shell /usr/sbin/nologin ppu \
     && mkdir /results \
     && chown ppu:ppu /results
 USER ppu
