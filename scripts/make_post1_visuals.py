@@ -23,7 +23,7 @@ BROWN = "#684131"
 TAUPE = "#A99B8E"
 RUST = "#98695E"
 
-METHOD_COLOURS = [TAUPE, BROWN, RUST]
+METHOD_COLOURS = [TAUPE, BROWN, RUST, CHARCOAL]
 
 
 def available_font(*choices):
@@ -40,13 +40,13 @@ MONO = available_font("IBM Plex Mono", "DejaVu Sans Mono")
 
 
 def bar_panel(ax, labels, values, maximum, ticks, format_value):
-    positions = [2, 1, 0]
+    positions = list(reversed(range(len(labels))))
 
     ax.barh(
         positions,
         values,
         height=0.46,
-        color=METHOD_COLOURS,
+        color=METHOD_COLOURS[:len(labels)],
         zorder=2,
     )
 
@@ -58,7 +58,7 @@ def bar_panel(ax, labels, values, maximum, ticks, format_value):
         color=CHARCOAL,
     )
     ax.set_xlim(0, maximum)
-    ax.set_ylim(-0.65, 2.65)
+    ax.set_ylim(-0.65, len(labels) - 0.35)
     ax.set_xticks(ticks)
     ax.tick_params(
         axis="x",

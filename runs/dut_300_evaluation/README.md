@@ -14,6 +14,21 @@ Start with [the write-up: more pixels, more drones?](../../docs/post1_independen
 
 These are the original outputs from the completed evaluation on 2 November 2026. The [image list](../../results/post1/evaluation_sample_300.txt), [selection record](../../configs/dut_independent_eval.json) and [runner](../../scripts/evaluate_post1_sample.py) were committed before the evaluation. The visualisations were made afterwards from these saved predictions.
 
+## Evaluation slide
+
+[One comparison slide](visuals/post1_evaluation_comparison.png) puts two aligned charts side by side:
+
+- **Which method found more drones?** Share of the 309 labelled drones correctly detected, on a 0–100% scale.
+- **Which method produced more extra boxes?** Extra detections per image, including inaccurate and duplicate boxes. This is a count per image, not a percentage.
+
+The slide compares all four methods at confidence 0.25 and matching IoU 0.50, using shared method rows and colours. Its takeaway: YOLO 1280 found the most drones. Recreate it from saved predictions, without source images or inference:
+
+```bash
+uv run --locked python -m scripts.make_post1_evaluation_visuals
+```
+
+Use `--cache` for another prediction cache and `--output-dir` to save charts elsewhere; the default output is `visuals/` beside the cache.
+
 ## Three cases to start with
 
 - [00395: where slicing helped](visuals/00395_comparison.png). SAHI passes the overlap rule; YOLO 1280 is just below it.
